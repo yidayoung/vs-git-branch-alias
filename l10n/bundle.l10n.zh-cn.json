@@ -1,0 +1,17 @@
+{
+    "Refreshing branch information...": "正在刷新分支信息...",
+    "Detected {0} new branches that need to sync JIRA information": "检测到 {0} 个新分支需要同步JIRA信息",
+    "Added new alias": "添加新别名",
+    "Synced JIRA information for {0} new branches": "已为 {0} 个新分支同步JIRA信息",
+    "Error occurred while checking and syncing missing aliases": "检查和同步缺失别名时出错",
+    "No Repository": "无仓库",
+    "No Git repository found": "未找到Git仓库",
+    "Unknown Branch": "未知分支",
+    "Branch": "分支",
+    "(No alias found)": "(未找到别名)",
+    "No corresponding Git branch found": "未找到对应的Git分支",
+    "Click to open corresponding JIRA links": "点击打开对应的JIRA链接",
+    "No corresponding JIRA issue found for current branch": "当前分支未找到对应的JIRA单",
+    "Found {0} different branches, opening {1} JIRA links": "发现{0}个不同分支，正在打开{1}个JIRA链接",
+    "Jira authentication failed, please check if the configured token is correct": "Jira 认证失败，请检查配置的 token 是否正确"
+}

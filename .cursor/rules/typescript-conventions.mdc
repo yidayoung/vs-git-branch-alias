@@ -1,0 +1,39 @@
+---
+globs: *.ts,*.tsx
+---
+
+# TypeScript编码规范
+
+## 代码风格
+- 使用分号结尾
+- 使用4个空格缩进
+- 优先使用`const`，其次`let`，避免`var`
+- 使用PascalCase命名类和接口
+- 使用camelCase命名变量和方法
+
+## VS Code扩展特定规范
+
+### 事件处理
+- 所有事件监听器应该在`dispose()`方法中正确清理
+- 使用`vscode.Disposable`管理资源生命周期
+- 示例: [src/statusBar/StatusBarManager.ts](mdc:src/statusBar/StatusBarManager.ts)中的`disposables`数组
+
+### 异步操作
+- 使用`async/await`而不是Promise链
+- 在VS Code进度提示中包装长时间运行的操作
+- 示例: [src/branchAliasProvider.ts](mdc:src/branchAliasProvider.ts)中的`forceRefresh`方法
+
+### 错误处理
+- 静默处理非关键错误（如网络请求失败）
+- 对用户操作错误显示友好的错误消息
+- 使用`vscode.window.showErrorMessage`显示错误
+
+### 配置访问
+- 通过`vscode.workspace.getConfiguration`访问配置
+- 监听配置变化并相应更新UI
+- 示例: [src/jira/JiraService.ts](mdc:src/jira/JiraService.ts)中的配置访问模式
+
+## 依赖注入模式
+- 在构造函数中注入依赖，而不是在类内部创建
+- 示例: [src/branchAliasManager.ts](mdc:src/branchAliasManager.ts)的构造函数模式
+

@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+---
+
+# VS Code Git分支别名插件项目结构
+
+这是一个VS Code扩展插件，用于为Git分支管理别名并与Jira集成。
+
+## 核心架构
+
+- **入口点**: [src/extension.ts](mdc:src/extension.ts) - 插件激活入口，注册所有命令和视图
+- **主管理器**: [src/branchAliasManager.ts](mdc:src/branchAliasManager.ts) - 核心业务逻辑管理器
+- **状态管理**: [src/state/BranchAliasState.ts](mdc:src/state/BranchAliasState.ts) - 插件状态持久化
+
+## 主要模块
+
+### Git集成
+- [src/git/GitRepositoryManager.ts](mdc:src/git/GitRepositoryManager.ts) - Git仓库管理，监听仓库变化
+- [src/git.d.ts](mdc:src/git.d.ts) - Git API类型定义
+
+### Jira集成  
+- [src/jira/JiraService.ts](mdc:src/jira/JiraService.ts) - Jira API服务，提取分支中的Jira键并获取Issue信息
+- [src/jira/index.ts](mdc:src/jira/index.ts) - Jira模块导出
+
+### 用户界面
+- [src/branchAliasProvider.ts](mdc:src/branchAliasProvider.ts) - 树视图数据提供器
+- [src/statusBar/StatusBarManager.ts](mdc:src/statusBar/StatusBarManager.ts) - 状态栏管理，支持点击打开Jira链接
+
+## 配置文件
+- [package.json](mdc:package.json) - 插件清单，定义命令、视图和配置选项
+- [tsconfig.json](mdc:tsconfig.json) - TypeScript编译配置
+
+## 主要功能
+1. 从Git分支名提取Jira键
+2. 自动获取Jira Issue标题作为分支别名
+3. 在树视图中显示分支别名
+4. 状态栏显示当前分支信息
+5. 点击状态栏智能打开Jira链接（支持多仓库分支分叉检测）

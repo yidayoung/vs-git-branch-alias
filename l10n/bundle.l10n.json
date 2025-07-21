@@ -1,0 +1,17 @@
+{
+  "Refreshing branch information...": "Refreshing branch information...",
+  "Detected {0} new branches that need to sync JIRA information": "Detected {0} new branches that need to sync JIRA information",
+  "Added new alias": "Added new alias",
+  "Synced JIRA information for {0} new branches": "Synced JIRA information for {0} new branches",
+  "Error occurred while checking and syncing missing aliases": "Error occurred while checking and syncing missing aliases",
+  "No Repository": "No Repository",
+  "No Git repository found": "No Git repository found",
+  "Unknown Branch": "Unknown Branch",
+  "Branch": "Branch",
+  "(No alias found)": "(No alias found)",
+  "No corresponding Git branch found": "No corresponding Git branch found",
+  "Click to open corresponding JIRA links": "Click to open corresponding JIRA links",
+  "No corresponding JIRA issue found for current branch": "No corresponding JIRA issue found for current branch",
+  "Found {0} different branches, opening {1} JIRA links": "Found {0} different branches, opening {1} JIRA links",
+  "Jira authentication failed, please check if the configured token is correct": "Jira authentication failed, please check if the configured token is correct"
+}

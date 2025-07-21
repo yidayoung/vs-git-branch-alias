@@ -1,0 +1,44 @@
+---
+description: Jira集成和API使用规范
+---
+
+# Jira集成规范
+
+## Jira服务架构
+主要服务类: [src/jira/JiraService.ts](mdc:src/jira/JiraService.ts)
+
+## 分支名到Jira键的提取
+- 使用正则表达式从分支名中提取Jira键
+- 默认模式: `.*_(X1-\\d+)` - 提取下划线后的Jira键
+- 配置项: `branchAlias.branchPattern`
+
+## API调用模式
+- 使用Bearer Token认证
+- 批量获取Issue信息以提高性能
+- 静默处理API错误，不中断用户工作流
+
+## 配置要求
+必需的配置项:
+- `branchAlias.jiraBaseUrl`: Jira实例URL (例: https://your-jira-instance.com)  
+- `branchAlias.jiraToken`: API访问令牌
+- `branchAlias.branchPattern`: 分支名正则模式
+
+## URL生成规范
+- Jira链接格式: `{baseUrl}/browse/{jiraKey}`
+- 示例: `https://your-jira-instance.com/browse/PROJ-1234`
+
+## 错误处理
+- 401错误: 显示Token配置错误提示
+- 其他错误: 静默处理，返回null或空结果
+- 不阻断插件的其他功能
+
+## 性能优化
+- 使用`getBatchIssueSummaries`批量获取Issue信息
+- 缓存已获取的Issue信息
+- 避免重复的API调用
+
+## 状态栏集成
+- 点击状态栏时智能打开Jira链接
+- 多分支场景下打开所有相关Jira链接
+- 单分支场景下只打开一个链接
+

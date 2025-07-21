@@ -1,0 +1,11 @@
+{
+    "displayName": "Git分支别名",
+    "description": "为Git分支管理别名",
+    "command.refresh.title": "刷新",
+    "command.toggleRemoteBranches.title": "切换远程分支",
+    "command.toggleRepository.title": "切换仓库",
+    "view.branchAliases.name": "Git分支别名",
+    "config.branchPattern.description": "用于从分支名提取JIRA编号的正则表达式，使用()标记要提取的部分",
+    "config.jiraToken.description": "JIRA API访问令牌",
+    "config.jiraBaseUrl.description": "JIRA实例的基础URL，例如 https://your-jira-instance.com"
+}

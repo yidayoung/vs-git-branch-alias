@@ -1,0 +1,51 @@
+---
+description: 状态栏点击打开Jira链接功能的实现规范
+---
+
+# 状态栏Jira链接功能
+
+## 核心功能
+点击状态栏的Git分支信息时，智能打开对应的Jira链接。
+
+## 实现位置
+- 主要逻辑: [src/statusBar/StatusBarManager.ts](mdc:src/statusBar/StatusBarManager.ts)
+- 命令注册: [src/extension.ts](mdc:src/extension.ts)
+- 接口暴露: [src/branchAliasManager.ts](mdc:src/branchAliasManager.ts)
+
+## 智能打开策略
+
+### 分支分叉检测
+```typescript
+const hasDifferentBranches = uniqueBranches.size > 1;
+```
+
+### 打开规则
+- **有分叉**: 打开所有符合条件的Jira链接
+- **无分叉**: 只打开一个Jira链接
+
+## 用户体验设计
+- 状态栏tooltip提示点击功能
+- 显示信息消息告知用户操作结果
+- 优雅处理无Jira单的情况
+
+## 链接收集逻辑
+1. 遍历所有仓库的分支信息
+2. 从分支名提取Jira键
+3. 生成Jira URL
+4. 去重处理（使用Set）
+
+## 命令系统集成
+- 命令ID: `branchAlias.openJiraLinks`
+- 绑定到状态栏项的command属性
+- 通过VS Code命令系统调用
+
+## 错误处理
+- 无仓库: 显示"未找到Git仓库"
+- 无Jira单: 显示"当前分支未找到对应的JIRA单"
+- 静默处理Jira服务错误
+
+## 性能考虑
+- 使用Set避免重复链接
+- 异步处理，不阻塞UI
+- 批量打开链接时的用户反馈
+

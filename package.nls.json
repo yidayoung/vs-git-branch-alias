@@ -1,0 +1,11 @@
+{
+    "displayName": "Git Branch Alias",
+    "description": "Manage aliases for Git branches",
+    "command.refresh.title": "Refresh",
+    "command.toggleRemoteBranches.title": "Toggle Remote Branches",
+    "command.toggleRepository.title": "Toggle Repository",
+    "view.branchAliases.name": "Git Branch Aliases",
+    "config.branchPattern.description": "Regular expression used to extract JIRA number from branch name, use () to mark the part to extract",
+    "config.jiraToken.description": "JIRA API access token",
+    "config.jiraBaseUrl.description": "Base URL of JIRA instance, e.g. https://your-jira-instance.com"
+}
