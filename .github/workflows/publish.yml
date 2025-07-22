@@ -1,0 +1,84 @@
+name: 发布扩展
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '发布版本类型'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+        - prerelease
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: npm ci
+      
+    - name: 编译项目
+      run: npm run compile
+      
+    - name: 提取多语言字符串
+      run: npm run extract-l10n
+      
+    - name: 运行测试 (如果有的话)
+      run: |
+        if [ -f "package.json" ] && grep -q '"test"' package.json; then
+          npm test
+        else
+          echo "没有找到测试脚本，跳过测试"
+        fi
+      
+    - name: 打包扩展
+      run: |
+        npm install -g @vscode/vsce
+        vsce package
+        
+    - name: 发布到VS Code Marketplace
+      if: env.VSCE_PAT != ''
+      run: vsce publish
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        
+    - name: 发布到Open VSX Registry
+      if: env.OVSX_PAT != ''
+      run: |
+        npm install -g ovsx
+        ovsx publish
+      env:
+        OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        
+    - name: 上传构建产物
+      uses: actions/upload-artifact@v4
+      with:
+        name: vsix-package
+        path: '*.vsix'
+        
+    - name: 发布到GitHub Release
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./git-branch-alias-${{ github.event.release.tag_name }}.vsix
+        asset_name: git-branch-alias-${{ github.event.release.tag_name }}.vsix
+        asset_content_type: application/zip 

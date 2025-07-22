@@ -103,23 +103,55 @@ vsce publish minor  # 1.0.0 -> 1.1.0
 vsce publish major  # 1.0.0 -> 2.0.0
 ```
 
-## 📦 发布到Open VSX Registry (可选)
+## 📦 发布到Open VSX Registry
 
-Open VSX是一个开源的扩展注册中心，用于VS Code的开源版本。
+Open VSX Registry是VS Code扩展的开源注册中心，用于VSCodium、Eclipse Theia等开源IDE。
 
-### 1. 安装ovsx工具
+### 1. 创建Eclipse账户
+1. 访问 [Eclipse账户注册页面](https://accounts.eclipse.org/user/register)
+2. 填写注册信息，**重要：确保填写GitHub用户名字段**
+3. 使用与GitHub相同的邮箱地址
+
+### 2. 登录Open VSX并签署发布者协议
+1. 访问 [Open VSX Registry](https://open-vsx.org/)
+2. 点击右上角账户图标，使用GitHub账户授权登录
+3. 进入个人资料页面（点击头像 → Settings）
+4. 点击 "Log in with Eclipse" 并授权访问您的eclipse.org账户
+5. 成功连接后，您会看到 "Show Publisher Agreement" 按钮
+6. 点击按钮，阅读协议并点击 "Agree" 同意条款
+
+### 3. 创建访问令牌
+1. 在个人资料页面，点击 "Access Tokens"
+2. 点击 "Generate New Token"
+3. 输入令牌描述（如：`local-publishing`）
+4. 点击 "Generate Token" 并**保存生成的令牌值**（只显示一次！）
+
+### 4. 安装ovsx工具并创建命名空间
 ```bash
+# 安装ovsx工具
 npm install -g ovsx
+
+# 创建命名空间（必须先创建才能发布）
+npx ovsx create-namespace yidayoung -p <your-access-token>
 ```
 
-### 2. 创建账户
-1. 访问 [Open VSX Registry](https://open-vsx.org/)
-2. 使用GitHub账户登录
-3. 创建Access Token
-
-### 3. 发布
+### 5. 发布到Open VSX
 ```bash
-ovsx publish -p <your-access-token>
+# 方式1：从源码构建并发布
+npx ovsx publish -p <your-access-token>
+
+# 方式2：发布已有的.vsix文件
+npx ovsx publish git-branch-alias-0.0.1.vsix -p <your-access-token>
+```
+
+### 6. 验证发布
+访问 https://open-vsx.org/extension/yidayoung/git-branch-alias 查看您的扩展
+
+### 环境变量配置
+为了避免每次都输入令牌，可以设置环境变量：
+```bash
+export OVSX_PAT=your-access-token
+npx ovsx publish
 ```
 
 ## 🔄 自动化发布 (GitHub Actions)

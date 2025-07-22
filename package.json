@@ -2,7 +2,7 @@
     "name": "git-branch-alias",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "yidayoung",
     "repository": {
         "type": "git",
@@ -95,7 +95,11 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "extract-l10n": "npx @vscode/l10n-dev export -o ./l10n ./src"
+        "extract-l10n": "npx @vscode/l10n-dev export -o ./l10n ./src",
+        "package": "vsce package",
+        "publish": "./scripts/publish.sh",
+        "publish:marketplace": "vsce publish",
+        "publish:openvsx": "ovsx publish"
     },
     "devDependencies": {
         "@types/node": "^14.0.0",

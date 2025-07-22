@@ -8,6 +8,12 @@ yarn-error.log*
 out/
 *.vsix
 
+# Publishing related files
+.env.local
+.env.publish
+publish-config.json
+access-tokens.txt
+
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -68,6 +74,7 @@ jspm_packages/
 # dotenv environment variables file
 .env
 .env.test
+.env.production
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
