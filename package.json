@@ -2,7 +2,7 @@
     "name": "git-branch-alias",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "yidayoung",
     "repository": {
         "type": "git",
@@ -103,6 +103,7 @@
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
         "extract-l10n": "npx @vscode/l10n-dev export -o ./l10n ./src",
         "package": "vsce package",
+        "publish": "./scripts/publish.sh",
         "publish:marketplace": "vsce publish",
         "publish:openvsx": "ovsx publish"
     },

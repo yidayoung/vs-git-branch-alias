@@ -15,6 +15,7 @@ node_modules/**
 .vscode/**
 .cursor/**
 .github/**
+scripts/**
 
 # 文档文件（只保留必要的README）
 PUBLISHING_GUIDE.md
