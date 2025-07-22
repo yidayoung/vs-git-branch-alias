@@ -1,71 +1,86 @@
-# Source files
+# Source files - 使用esbuild打包后不需要源码
 src/**
 tsconfig.json
 *.ts
 
-# Development dependencies and build files
+# Build files - 只保留打包后的文件，排除其他构建产物
+out/**
+!out/extension.js
+**/*.js.map
+
+# 完全排除 node_modules（esbuild会将依赖打包到extension.js中）
 node_modules/**
+
+# 开发工具和配置文件
 .vscode/**
 .cursor/**
 .github/**
-scripts/**
 
-# Documentation that's not needed in the package
+# 文档文件（只保留必要的README）
 PUBLISHING_GUIDE.md
 INTERNATIONALIZATION.md
 env.template
+*.md
+!README.md
+!README.zh-cn.md
 
-# Git and development files
+# Git和开发文件
 .git/**
 .gitignore
 .DS_Store
 .DS_Store?
 ._*
 
-# Test files
+# 测试文件
 test/**
-*.test.js
-*.test.ts
+**/*.test.js
+**/*.test.ts
+**/*spec.js
+**/*spec.ts
 
-# Logs
+# 日志文件
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Build artifacts that shouldn't be included
+# 构建产物
 *.vsix
 *.tgz
 
-# Environment and config files
+# 环境配置文件
 .env
 .env.*
 .npmrc
 
-# IDE specific files
+# IDE文件
 .idea/**
 *.swp
 *.swo
 
-# OS generated files
+# 系统文件
 .Spotlight-V100
 .Trashes
 ehthumbs.db
 Thumbs.db
 
-# Coverage reports
+# 覆盖率报告
 coverage/**
 .nyc_output
 
-# Dependency directories that might be accidentally included
+# 依赖目录
 jspm_packages/
 
-# Optional npm cache directory
+# npm缓存
 .npm
 
-# Runtime data
+# 运行时数据
 pids
 *.pid
 *.seed
-*.pid.lock 
+*.pid.lock
+
+# 锁文件
+package-lock.json
+yarn.lock 

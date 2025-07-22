@@ -15,7 +15,6 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:branch-alias.refresh",
         "workspaceContains:.git"
     ],
     "extensionDependencies": [
@@ -47,6 +46,11 @@
                 "command": "branchAlias.toggleRemoteBranches",
                 "title": "%command.toggleRemoteBranches.title%",
                 "icon": "$(globe)"
+            },
+            {
+                "command": "branchAlias.openJiraTokenPage",
+                "title": "%command.openJiraTokenPage.title%",
+                "category": "Branch Alias"
             }
         ],
         "menus": {
@@ -81,7 +85,8 @@
                 "branchAlias.jiraToken": {
                     "type": "string",
                     "default": "",
-                    "description": "%config.jiraToken.description%"
+                    "description": "%config.jiraToken.description%",
+                    "markdownDescription": "%config.jiraToken.markdownDescription%"
                 },
                 "branchAlias.jiraBaseUrl": {
                     "type": "string",
@@ -92,21 +97,23 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
+        "vscode:prepublish": "npm run esbuild-base -- --minify",
+        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+        "esbuild": "npm run esbuild-base -- --sourcemap",
+        "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
         "extract-l10n": "npx @vscode/l10n-dev export -o ./l10n ./src",
         "package": "vsce package",
-        "publish": "./scripts/publish.sh",
         "publish:marketplace": "vsce publish",
         "publish:openvsx": "ovsx publish"
     },
     "devDependencies": {
-        "@types/node": "^14.0.0",
+        "@types/node": "^20.0.0",
         "@types/vscode": "^1.73.0",
-        "typescript": "^4.5.0",
-        "@types/glob": "^7.1.4",
-        "@vscode/l10n-dev": "^0.0.35"
+        "@vscode/l10n-dev": "^0.0.35",
+        "@vscode/vsce": "^3.0.0",
+        "esbuild": "^0.25.8",
+        "ovsx": "^0.9.0",
+        "typescript": "^5.0.0"
     },
     "dependencies": {
         "axios": "^1.7.8"
