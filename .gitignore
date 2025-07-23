@@ -30,6 +30,8 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+.cursor
+.kiro
 
 # Logs
 logs

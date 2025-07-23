@@ -79,6 +79,18 @@
 - 工作区中的Git仓库
 - 具有API访问权限的JIRA实例
 
+## 架构
+
+该扩展采用模块化架构，提高可维护性：
+
+- **ConfigService**: 集中配置管理，包含验证和默认值处理
+- **SyncService**: 处理所有JIRA同步逻辑
+- **CommandHandlers**: 管理命令实现和用户交互
+- **GitRepositoryManager**: 管理Git仓库操作
+- **StatusBarManager**: 控制状态栏显示和交互
+- **BranchAliasManager**: 分支别名管理的核心服务
+- **BranchAliasState**: 管理扩展状态持久化
+
 ## 扩展命令
 
 - `branchAlias.refresh`: 刷新分支信息

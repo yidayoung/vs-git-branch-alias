@@ -79,6 +79,18 @@ Example branch names:
 - Git repositories in your workspace
 - JIRA instance with API access
 
+## Architecture
+
+The extension is built with a modular architecture for better maintainability:
+
+- **ConfigService**: Centralized configuration management with validation and defaults
+- **SyncService**: Handles all JIRA synchronization logic
+- **CommandHandlers**: Manages command implementations and user interactions
+- **GitRepositoryManager**: Manages Git repository operations
+- **StatusBarManager**: Controls the status bar display and interactions
+- **BranchAliasManager**: Core service for branch alias management
+- **BranchAliasState**: Manages extension state persistence
+
 ## Extension Commands
 
 - `branchAlias.refresh`: Refresh branch information

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { BranchAliasState } from '../state/BranchAliasState';
 import { GitRepositoryManager } from '../git/GitRepositoryManager';
 import { JiraService } from '../jira/JiraService';
+import { IConfigService } from '../config/ConfigService';
 
 export class StatusBarManager {
     private statusBarItem: vscode.StatusBarItem;
@@ -10,20 +11,31 @@ export class StatusBarManager {
 
     constructor(
         private readonly state: BranchAliasState,
-        private readonly gitManager: GitRepositoryManager
+        private readonly gitManager: GitRepositoryManager,
+        private readonly configService: IConfigService
     ) {
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-        this.jiraService = new JiraService();
+        this.jiraService = JiraService.getInstance(this.configService);
         this.setupEventListeners();
         this.updateStatusBar();
     }
 
     private setupEventListeners() {
+        // Listen for configuration changes related to remote branches
         this.disposables.push(
             vscode.workspace.onDidChangeConfiguration(e => {
                 if (e.affectsConfiguration('branchAlias.showRemoteBranches')) {
                     this.updateStatusBar();
                 }
+            })
+        );
+
+        // Listen for JIRA configuration changes
+        this.disposables.push(
+            this.configService.onConfigurationChanged(() => {
+                // Update JiraService when configuration changes
+                this.jiraService = JiraService.getInstance(this.configService);
+                this.updateStatusBar();
             })
         );
     }
@@ -120,6 +132,13 @@ export class StatusBarManager {
 
         if (branchInfos.length === 0) {
             vscode.window.showInformationMessage(vscode.l10n.t('No Git repository found'));
+            return;
+        }
+
+        // Validate JIRA configuration before proceeding
+        const configValidation = this.configService.validateJiraConfig();
+        if (!configValidation.isValid) {
+            vscode.window.showErrorMessage(vscode.l10n.t('JIRA configuration is invalid: {0}', configValidation.errors.join(', ')));
             return;
         }
 

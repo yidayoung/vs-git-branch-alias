@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { BranchAliasManager } from './branchAliasManager';
 import { Repository } from './git';
 import { GitRepositoryManager } from './git/GitRepositoryManager';
+import { ISyncService } from './sync';
 
 export class BranchAliasProvider implements vscode.TreeDataProvider<BranchAliasItem | RepositoryItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<BranchAliasItem | RepositoryItem | undefined> = new vscode.EventEmitter<BranchAliasItem | RepositoryItem | undefined>();
@@ -9,7 +10,8 @@ export class BranchAliasProvider implements vscode.TreeDataProvider<BranchAliasI
 
     constructor(
         private branchAliasManager: BranchAliasManager,
-        private gitManager: GitRepositoryManager
+        private gitManager: GitRepositoryManager,
+        private syncService?: ISyncService
     ) {
         branchAliasManager.onDidChangeAliases(() => {
             this.refresh();
@@ -32,7 +34,9 @@ export class BranchAliasProvider implements vscode.TreeDataProvider<BranchAliasI
             // 首先强制刷新仓库列表
             await this.gitManager.forceRefreshRepositories();
             // 然后同步JIRA信息
-            await this.branchAliasManager.syncWithJira();
+            if (this.syncService) {
+                await this.syncService.syncWithJira();
+            }
             this.refresh();
         });
     }

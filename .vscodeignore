@@ -2,10 +2,16 @@
 src/**
 tsconfig.json
 *.ts
+webpack.config.js
+esbuild.js
+rollup.config.js
+babel.config.js
 
 # Build files - 只保留打包后的文件，排除其他构建产物
 out/**
 !out/extension.js
+dist/**
+!dist/extension.js
 **/*.js.map
 
 # 完全排除 node_modules（esbuild会将依赖打包到extension.js中）
@@ -24,6 +30,12 @@ env.template
 *.md
 !README.md
 !README.zh-cn.md
+
+# 开发文档和规范文件
+.kiro/specs/**
+docs/**
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
 
 # Git和开发文件
 .git/**

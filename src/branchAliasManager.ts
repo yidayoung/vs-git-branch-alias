@@ -1,100 +1,60 @@
 import * as vscode from 'vscode';
 import { Repository } from './git';
-import { JiraService } from './jira';
 import { BranchAliasState } from './state/BranchAliasState';
 import { GitRepositoryManager } from './git/GitRepositoryManager';
 import { StatusBarManager } from './statusBar/StatusBarManager';
+import { ISyncService, SyncResult } from './sync';
+import { ConfigService, IConfigService } from './config';
 
 export class BranchAliasManager {
-    private state: BranchAliasState;
+    public state: BranchAliasState;
     public gitManager: GitRepositoryManager;
-    private jiraService: JiraService;
     private statusBarManager: StatusBarManager;
     private _onDidChangeAliases: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
     readonly onDidChangeAliases: vscode.Event<void> = this._onDidChangeAliases.event;
 
-    constructor(private readonly globalState: vscode.Memento) {
+    constructor(
+        globalState: vscode.Memento, 
+        private readonly syncService: ISyncService,
+        private readonly configService: IConfigService = ConfigService.getInstance(),
+        gitManager?: GitRepositoryManager
+    ) {
         this.state = new BranchAliasState(globalState);
-        this.gitManager = new GitRepositoryManager();
-        this.jiraService = new JiraService();
-        this.statusBarManager = new StatusBarManager(this.state, this.gitManager);
+        this.gitManager = gitManager || new GitRepositoryManager();
+        this.statusBarManager = new StatusBarManager(this.state, this.gitManager, this.configService);
         this.initialize();
+        
+        // Listen for sync events to refresh the UI
+        this.syncService.onDidSync(this.handleSyncResult.bind(this));
     }
 
     private async initialize() {
+        // Initialize GitRepositoryManager if needed
         await this.gitManager.initialize();
 
         this.gitManager.onDidChangeRepositories(async () => {
             // 检查是否有新分支需要同步JIRA信息
-            await this.checkAndSyncMissingAliases();
+            await this.syncService.checkAndSyncMissingAliases();
             this.statusBarManager.updateStatusBar();
         });
     }
 
-    private getBranchKey(branchName: string): string {
-        return branchName.replace(/^origin\//, '');
-    }
-
-    private async checkAndSyncMissingAliases(): Promise<void> {
-        try {
-            const jiraKeysToFetch = new Set<string>();
-            let hasNewAliases = false;
-
-            // 检查所有仓库的分支
-            for (const repo of this.getRepositories()) {
-                const repoPath = repo.rootUri.fsPath;
-                const branches = await this.gitManager.getActiveBranches(repo, false); // 只检查本地分支
-                const existingAliases = this.state.getAliases(repoPath);
-
-                // 找出有JIRA key但没有别名的分支
-                for (const branch of branches) {
-                    const normalizedBranchName = this.getBranchKey(branch.name);
-                    const jiraKey = this.jiraService.extractJiraKey(normalizedBranchName);
-
-                    if (jiraKey && !existingAliases.has(normalizedBranchName)) {
-                        jiraKeysToFetch.add(jiraKey);
-                    }
-                }
+    /**
+     * Handles the result of a sync operation
+     * @param result The result of the sync operation
+     */
+    private handleSyncResult(result: SyncResult): void {
+        if (result.success) {
+            if (result.syncedCount > 0) {
+                this.refresh();
             }
-
-            // 如果有需要获取的JIRA信息
-            if (jiraKeysToFetch.size > 0) {
-                console.log(`${vscode.l10n.t('Detected {0} new branches that need to sync JIRA information', jiraKeysToFetch.size)}: ${Array.from(jiraKeysToFetch).join(', ')}`);
-
-                const summaries = await this.jiraService.getBatchIssueSummaries(Array.from(jiraKeysToFetch));
-
-                // 更新每个仓库的别名
-                for (const repo of this.getRepositories()) {
-                    const repoPath = repo.rootUri.fsPath;
-                    const branches = await this.gitManager.getActiveBranches(repo, false);
-                    const existingAliases = this.state.getAliases(repoPath);
-
-                    for (const branch of branches) {
-                        const normalizedBranchName = this.getBranchKey(branch.name);
-                        const jiraKey = this.jiraService.extractJiraKey(normalizedBranchName);
-
-                        if (jiraKey && summaries[jiraKey] && !existingAliases.has(normalizedBranchName)) {
-                            const alias = `${jiraKey}: ${summaries[jiraKey]}`;
-                            existingAliases.set(normalizedBranchName, alias);
-                            hasNewAliases = true;
-                            console.log(`${vscode.l10n.t('Added new alias')}: ${normalizedBranchName} -> ${alias}`);
-                        }
-                    }
-
-                    this.state.setAliases(repoPath, existingAliases);
-                }
-
-                if (hasNewAliases) {
-                    await this.state.saveCache();
-                    this.refresh();
-
-                    vscode.window.showInformationMessage(
-                        vscode.l10n.t('Synced JIRA information for {0} new branches', jiraKeysToFetch.size)
-                    );
-                }
+        } else {
+            // Display error notification for failed syncs
+            if (result.errors.length > 0) {
+                vscode.window.showErrorMessage(
+                    vscode.l10n.t('Failed to sync with JIRA: {0}', result.errors[0])
+                );
             }
-        } catch (error) {
-            console.error(vscode.l10n.t('Error occurred while checking and syncing missing aliases'), error);
         }
     }
 
@@ -103,40 +63,7 @@ export class BranchAliasManager {
         this.statusBarManager.updateStatusBar();
     }
 
-    public async syncWithJira(): Promise<void> {
-        const jiraKeys = new Set<string>();
-
-        for (const repo of this.getRepositories()) {
-            const branches = await this.gitManager.getActiveBranches(repo, true);
-            for (const branch of branches) {
-                const normalizedBranchName = this.getBranchKey(branch.name);
-                const jiraKey = this.jiraService.extractJiraKey(normalizedBranchName);
-                if (jiraKey) {
-                    jiraKeys.add(jiraKey);
-                }
-            }
-        }
-
-        const summaries = await this.jiraService.getBatchIssueSummaries(Array.from(jiraKeys));
-
-        for (const repo of this.getRepositories()) {
-            const branches = await this.gitManager.getActiveBranches(repo, this.state.getShowRemoteBranches());
-            const aliases = new Map<string, string>();
-
-            for (const branch of branches) {
-                const normalizedBranchName = this.getBranchKey(branch.name);
-                const jiraKey = this.jiraService.extractJiraKey(normalizedBranchName);
-                if (jiraKey && summaries[jiraKey]) {
-                    aliases.set(normalizedBranchName, `${jiraKey}: ${summaries[jiraKey]}`);
-                }
-            }
-
-            this.state.setAliases(repo.rootUri.fsPath, aliases);
-        }
-
-        await this.state.saveCache();
-        this.refresh();
-    }
+    // syncWithJira method removed - now handled directly through syncService
 
     public async toggleRepository(repoPath: string): Promise<void> {
         this.state.toggleRepository(repoPath);
@@ -176,7 +103,8 @@ export class BranchAliasManager {
         const branchesWithoutAlias: [string, string][] = [];
 
         for (const branch of branches) {
-            const normalizedBranchName = this.getBranchKey(branch.name);
+            // Normalize branch name (remove remote prefix)
+            const normalizedBranchName = branch.name.replace(/^origin\//, '');
             const alias = storedAliases.get(normalizedBranchName);
 
             if (alias) {

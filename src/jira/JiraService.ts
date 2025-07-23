@@ -1,16 +1,45 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
+import { ConfigService, IConfigService } from '../config/ConfigService';
 
-export class JiraService {
-    private readonly config: vscode.WorkspaceConfiguration;
+/**
+ * JiraService interface for better testability
+ */
+export interface IJiraService {
+    extractJiraKey(branchName: string): string | null;
+    getIssueTitle(jiraKey: string): Promise<string | null>;
+    getBatchIssueSummaries(jiraKeys: string[]): Promise<Record<string, string>>;
+    getJiraUrl(jiraKey: string): string | null;
+}
 
-    constructor() {
-        this.config = vscode.workspace.getConfiguration('branchAlias');
+export class JiraService implements IJiraService {
+    private static instance: JiraService | null = null;
+    private readonly configService: IConfigService;
+
+    private constructor(configService?: IConfigService) {
+        this.configService = configService || ConfigService.getInstance();
+    }
+
+    /**
+     * Get singleton instance of JiraService
+     */
+    public static getInstance(configService?: IConfigService): JiraService {
+        if (!JiraService.instance) {
+            JiraService.instance = new JiraService(configService);
+        }
+        return JiraService.instance;
+    }
+
+    /**
+     * Reset singleton instance (mainly for testing)
+     */
+    public static resetInstance(): void {
+        JiraService.instance = null;
     }
 
     public extractJiraKey(branchName: string): string | null {
         try {
-            const pattern = this.config.get<string>('branchPattern', '.*_(PROJ-\\d+)');
+            const pattern = this.configService.getBranchPattern();
             const regex = new RegExp(pattern);
             const match = branchName.match(regex);
             return match ? match[1] : null;
@@ -21,8 +50,8 @@ export class JiraService {
 
     public async getIssueTitle(jiraKey: string): Promise<string | null> {
         try {
-            const baseUrl = this.config.get<string>('jiraBaseUrl');
-            const token = this.config.get<string>('jiraToken');
+            const baseUrl = this.configService.getJiraBaseUrl();
+            const token = this.configService.getJiraToken();
 
             if (!baseUrl || !token) {
                 return null;
@@ -52,8 +81,8 @@ export class JiraService {
             return {};
         }
 
-        const baseUrl = this.config.get<string>('jiraBaseUrl');
-        const token = this.config.get<string>('jiraToken');
+        const baseUrl = this.configService.getJiraBaseUrl();
+        const token = this.configService.getJiraToken();
 
         if (!baseUrl || !token) {
             return {};
@@ -87,7 +116,7 @@ export class JiraService {
     }
 
     public getJiraUrl(jiraKey: string): string | null {
-        const baseUrl = this.config.get<string>('jiraBaseUrl');
+        const baseUrl = this.configService.getJiraBaseUrl();
         if (!baseUrl || !jiraKey) {
             return null;
         }

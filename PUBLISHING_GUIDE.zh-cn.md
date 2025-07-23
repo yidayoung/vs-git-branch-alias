@@ -19,15 +19,15 @@
 
 我们使用 .vscodeignore 文件来排除不需要包含在最终扩展包中的文件：
 
-- 源代码文件 (已经被打包到 extension.js)
+- 源代码文件（已经被打包到 extension.js）
 - 开发工具和配置文件
 - 测试文件
-- 文档文件 (除了主要的 README)
-- 构建产物 (除了最终的 extension.js)
+- 文档文件（除了主要的 README）
+- 构建产物（除了最终的 extension.js）
 
 ### 3. 依赖管理
 
-- 将 VS Code API 标记为外部依赖 (`--external:vscode`)
+- 将 VS Code API 标记为外部依赖（`--external:vscode`）
 - 只包含必要的生产依赖
 - 使用轻量级的依赖
 
